@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maisy's 10 Days | 2026 Dream Planner</title>
+    <!-- 引入 Tailwind CSS 用於快速佈局 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Lucide 圖標庫 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --scandi-bg: #F9F8F6;
+            --scandi-stone: #E5E1DB;
+            --scandi-sage: #8C9688;
+            --scandi-oak: #D4C3B3;
+            --scandi-text: #4A4A4A;
+        }
+
+        body { 
+            font-family: 'Inter', 'Noto Sans TC', sans-serif; 
+            background-color: var(--scandi-bg); 
+            background-image: radial-gradient(circle at 10% 20%, rgba(212, 195, 179, 0.1) 0%, transparent 20%),
+                              radial-gradient(circle at 90% 80%, rgba(140, 150, 136, 0.1) 0%, transparent 20%);
+            color: var(--scandi-text);
+            line-height: 1.6;
+        }
+
+        h1, h2, .serif { font-family: 'Noto Serif TC', serif; }
+
+        /* 半透明毛玻璃效果 */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .mandala-card {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        .mandala-center {
+            background-color: var(--scandi-sage);
+            color: white;
+            font-weight: 600;
+        }
+
+        .mandala-outer {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(229, 225, 219, 0.8);
+        }
+
+        .mandala-outer:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .cycle-btn {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(229, 225, 219, 0.8);
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .cycle-btn.active {
+            background-color: var(--scandi-text);
+            color: white;
+            border-color: var(--scandi-text);
+            transform: scale(1.1);
+        }
+
+        .check-box {
+            aspect-ratio: 1;
+            border: 1px solid rgba(229, 225, 219, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--scandi-stone);
+            font-weight: 300;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 6px;
+        }
+
+        .check-box.checked {
+            background-color: var(--scandi-sage);
+            border-color: var(--scandi-sage);
+            color: white;
+        }
+
+        input, textarea {
+            background-color: transparent;
+            border-bottom: 1px solid var(--scandi-stone) !important;
+            border-radius: 0 !important;
+            width: 100%;
+        }
+
+        input:focus, textarea:focus {
+            border-bottom-color: var(--scandi-sage) !important;
+            outline: none;
+        }
+
+        #copy-toast {
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="p-6 md:p-12 min-h-screen">
+    <div id="app" class="max-w-5xl mx-auto">
+        <!-- 頁首導航 -->
+        <header class="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-light tracking-tighter mb-4 italic">Maisy's 10 Days.</h1>
+                <div class="h-px w-20 bg-slate-400 mb-4"></div>
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-400">36 Cycles / 2026 Manifestation</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="copySourceCode()" class="flex items-center gap-2 px-4 py-2 glass-panel rounded-full text-[10px] uppercase tracking-widest font-bold hover:bg-white transition">
+                    <i data-lucide="copy" class="w-3 h-3"></i> Copy Source
+                </button>
+                <button onclick="exportData()" class="flex items-center gap-2 px-4 py-2 glass-panel rounded-full text-[10px] uppercase tracking-widest font-bold hover:bg-white transition">
+                    <i data-lucide="download" class="w-3 h-3"></i> Backup
+                </button>
+            </div>
+        </header>
+
+        <div class="grid lg:grid-cols-12 gap-16">
+            <!-- 側邊欄：曼陀羅與週期 -->
+            <div class="lg:col-span-4 space-y-12">
+                <!-- 曼陀羅 -->
+                <section class="glass-panel p-6 rounded-2xl">
+                    <h2 class="text-xs uppercase tracking-[0.2em] mb-6 text-slate-400 font-bold">Mandala / 曼陀羅</h2>
+                    <div class="grid grid-cols-3 gap-2" id="mandala-container"></div>
+                </section>
+
+                <!-- 週期選擇器 -->
+                <section class="glass-panel p-6 rounded-2xl">
+                    <div class="flex justify-between items-end mb-6">
+                        <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400 font-bold">Cycles / 週期</h2>
+                        <span class="text-[10px] text-slate-300 font-bold" id="cycle-count-info">01 / 36</span>
+                    </div>
+                    <div class="grid grid-cols-6 gap-2" id="cycle-grid"></div>
+                </section>
+            </div>
+
+            <!-- 主工作區 -->
+            <div class="lg:col-span-8 glass-panel p-8 md:p-12 rounded-3xl">
+                <div class="space-y-12">
+                    <!-- 專案名稱 -->
+                    <div class="flex justify-between items-baseline border-b border-stone-200/50 pb-4">
+                        <input type="text" id="proj-name" class="text-2xl font-light w-2/3 border-none p-0 focus:ring-0 italic" placeholder="這10天的專案名稱...">
+                        <span class="text-xs tracking-widest text-slate-400 font-bold" id="display-cycle-id">P.01</span>
+                    </div>
+
+                    <!-- 10 天打卡區 -->
+                    <section>
+                        <h2 class="text-xs uppercase tracking-[0.2em] mb-6 text-slate-400 font-bold">Daily Action / 十日紀錄</h2>
+                        <div class="grid grid-cols-5 md:grid-cols-10 gap-3" id="check-container"></div>
+                    </section>
+
+                    <!-- 心法與總結 -->
+                    <div class="grid md:grid-cols-2 gap-12 pt-4">
+                        <section class="space-y-4">
+                            <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400 font-bold flex items-center gap-2">
+                                <i data-lucide="book-open" class="w-3 h-3 text-stone-400"></i> Insight / 心法補註
+                            </h2>
+                            <textarea id="proj-notes" rows="8" class="w-full text-sm border-none p-0 focus:ring-0 resize-none leading-relaxed" placeholder="記錄這段時間閱讀到的啟發..."></textarea>
+                        </section>
+                        <section class="space-y-4">
+                            <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400 font-bold flex items-center gap-2">
+                                <i data-lucide="pen-tool" class="w-3 h-3 text-stone-400"></i> Reflection / 週期總結
+                            </h2>
+                            <textarea id="proj-summary" rows="8" class="w-full text-sm border-none p-0 focus:ring-0 resize-none leading-relaxed" placeholder="這10天的執行成果回顧..."></textarea>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- 頁尾數據 -->
+                <div class="mt-20 pt-8 border-t border-stone-200/50 flex justify-between items-center text-[10px] uppercase tracking-widest text-slate-400">
+                    <div class="flex gap-8">
+                        <span>Success Rate: <span id="display-progress-percent" class="text-slate-600 font-bold">0%</span></span>
+                        <span>Year Progress: <span id="year-percent" class="text-slate-600 font-bold">0%</span></span>
+                    </div>
+                    <div class="text-[9px] italic opacity-50">Maisy's Personal Manifestation System</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編輯曼陀羅領域的彈窗 -->
+    <div id="modal" class="fixed inset-0 bg-[#F9F8F6]/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+        <div class="w-full max-w-xs text-left glass-panel p-8 rounded-3xl">
+            <h3 class="text-xs uppercase tracking-[0.2em] text-slate-400 mb-8 font-bold">Define Area / 定義領域</h3>
+            <input type="text" id="modal-input" class="w-full text-xl font-light border-none p-0 focus:ring-0 mb-8 italic" autofocus>
+            <div class="flex gap-6">
+                <button onclick="confirmEdit()" class="text-xs uppercase tracking-widest font-bold text-slate-800 hover:text-green-600 transition">Confirm</button>
+                <button onclick="closeModal()" class="text-xs uppercase tracking-widest text-slate-400 hover:text-red-400 transition">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示通知 -->
+    <div id="copy-toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 glass-panel px-6 py-3 rounded-full text-xs font-bold tracking-widest opacity-0 pointer-events-none translate-y-4">
+        SOURCE CODE COPIED
+    </div>
+
+    <script>
+        // 資料結構
+        let appData = {
+            mandala: ["健康體態", "財務自由", "專業技能", "心靈成長", "貢獻影響", "家庭生活", "興趣愛好", "人際社交", "核心願景"],
+            activeCycle: 0,
+            cycles: Array.from({length: 36}, (_, i) => ({
+                id: i + 1,
+                name: "",
+                notes: "",
+                summary: "",
+                checks: new Array(10).fill(false)
+            }))
+        };
+
+        // 初始化
+        function init() {
+            const saved = localStorage.getItem('maisy_manifest_2026');
+            if (saved) appData = JSON.parse(saved);
+            renderMandala();
+            renderCycleGrid();
+            loadCycle();
+            lucide.createIcons();
+        }
+
+        // 繪製曼陀羅
+        function renderMandala() {
+            const container = document.getElementById('mandala-container');
+            container.innerHTML = '';
+            const order = [0, 1, 2, 7, 8, 3, 6, 5, 4]; // 視覺排列
+            order.forEach(idx => {
+                const div = document.createElement('div');
+                div.className = `mandala-card ${idx === 8 ? 'mandala-center' : 'mandala-outer'}`;
+                div.innerText = appData.mandala[idx];
+                div.onclick = () => openModal(idx);
+                container.appendChild(div);
+            });
+        }
+
+        // 繪製週期導航
+        function renderCycleGrid() {
+            const container = document.getElementById('cycle-grid');
+            container.innerHTML = '';
+            appData.cycles.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = `cycle-btn ${appData.activeCycle === i ? 'active' : ''}`;
+                btn.innerText = i + 1;
+                btn.onclick = () => switchCycle(i);
+                container.appendChild(btn);
+            });
+            document.getElementById('cycle-count-info').innerText = `${(appData.activeCycle + 1).toString().padStart(2, '0')} / 36`;
+        }
+
+        // 載入當前週期數據
+        function loadCycle() {
+            const cycle = appData.cycles[appData.activeCycle];
+            document.getElementById('display-cycle-id').innerText = `P.${(appData.activeCycle + 1).toString().padStart(2, '0')}`;
+            document.getElementById('proj-name').value = cycle.name;
+            document.getElementById('proj-notes').value = cycle.notes;
+            document.getElementById('proj-summary').value = cycle.summary;
+            renderChecks();
+        }
+
+        // 繪製 10 天打卡框
+        function renderChecks() {
+            const container = document.getElementById('check-container');
+            container.innerHTML = '';
+            const cycle = appData.cycles[appData.activeCycle];
+            cycle.checks.forEach((status, i) => {
+                const box = document.createElement('div');
+                box.className = `check-box ${status ? 'checked' : ''}`;
+                box.innerText = i + 1;
+                box.onclick = () => toggleDay(i);
+                container.appendChild(box);
+            });
+            updateProgress();
+        }
+
+        function toggleDay(idx) {
+            appData.cycles[appData.activeCycle].checks[idx] = !appData.cycles[appData.activeCycle].checks[idx];
+            renderChecks();
+            saveData();
+        }
+
+        function updateProgress() {
+            const checks = appData.cycles[appData.activeCycle].checks;
+            const count = checks.filter(Boolean).length;
+            document.getElementById('display-progress-percent').innerText = `${Math.round((count / 10) * 100)}%`;
+            document.getElementById('year-percent').innerText = `${Math.round(((appData.activeCycle * 10 + count) / 360) * 100)}%`;
+        }
+
+        function switchCycle(idx) {
+            saveInputs();
+            appData.activeCycle = idx;
+            renderCycleGrid();
+            loadCycle();
+            saveData();
+        }
+
+        function saveInputs() {
+            const cycle = appData.cycles[appData.activeCycle];
+            cycle.name = document.getElementById('proj-name').value;
+            cycle.notes = document.getElementById('proj-notes').value;
+            cycle.summary = document.getElementById('proj-summary').value;
+        }
+
+        // 儲存到 LocalStorage
+        function saveData() {
+            saveInputs();
+            localStorage.setItem('maisy_manifest_2026', JSON.stringify(appData));
+        }
+
+        // 曼陀羅編輯邏輯
+        let editIdx = -1;
+        function openModal(idx) { 
+            editIdx = idx; 
+            document.getElementById('modal-input').value = appData.mandala[idx]; 
+            document.getElementById('modal').style.display = 'flex'; 
+        }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function confirmEdit() {
+            if(editIdx !== -1) {
+                appData.mandala[editIdx] = document.getElementById('modal-input').value;
+                renderMandala();
+                saveData();
+            }
+            closeModal();
+        }
+
+        // 數據導出
+        function exportData() {
+            const blob = new Blob([JSON.stringify(appData)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Maisy_10Days_Backup.json';
+            a.click();
+        }
+
+        // 快速複製原始碼
+        function copySourceCode() {
+            const source = document.documentElement.outerHTML;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = source;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            const toast = document.getElementById('copy-toast');
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, -20px)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, 0)';
+            }, 2000);
+        }
+
+        // 監聽所有輸入以自動儲存
+        document.addEventListener('input', (e) => { 
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') saveData(); 
+        });
+
+        window.onload = init;
+    </script>
+</body>
+</html>
